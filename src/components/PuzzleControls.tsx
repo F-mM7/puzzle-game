@@ -12,14 +12,14 @@ export const PuzzleControls: React.FC<PuzzleControlsProps> = ({
   return (
     <div className="control-buttons">
       <button onClick={onReset} className="reset-button">
-        RESET
+        Reset
       </button>
       
       <button 
         onClick={onGenerateNew} 
         className="generate-button"
       >
-        NEW PUZZLE
+        New
       </button>
     </div>
   );

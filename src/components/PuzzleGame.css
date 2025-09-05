@@ -2,18 +2,21 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 10px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 8px;
 }
 
-.puzzle-header {
+.puzzle-controls-bar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  flex-wrap: nowrap;
 }
 
 
@@ -23,8 +26,8 @@
   justify-content: center;
   position: relative;
   width: 100%;
-  min-height: 600px;
-  padding: 10px;
+  min-height: 500px;
+  padding: 5px;
 }
 
 .game-board {
@@ -108,18 +111,23 @@
   background-color: var(--button-primary);
   color: var(--button-success-text);
   border: none;
-  padding: 12px 30px;
-  font-size: 1.1rem;
-  border-radius: 25px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .reset-button:hover {
   background-color: var(--button-primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .reset-button:active {
@@ -128,28 +136,32 @@
 
 .control-buttons {
   display: flex;
-  gap: 20px;
+  gap: 8px;
   justify-content: center;
-  padding: 10px;
+  align-items: center;
 }
 
 .generate-button {
   border: none;
-  padding: 12px 20px;
-  font-size: 1.1rem;
-  border-radius: 25px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-weight: 600;
   background-color: var(--button-secondary);
   color: var(--text-primary);
-  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.2);
+  height: 36px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .generate-button:hover {
   background-color: var(--button-secondary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .generate-button:active {
@@ -160,7 +172,7 @@
 @media (max-width: 1200px) {
   .puzzle-game {
     padding: 5px;
-    gap: 10px;
+    gap: 8px;
   }
 
   .game-container {
@@ -171,41 +183,49 @@
   .game-board {
     padding: 15px;
   }
+  
+  .puzzle-controls-bar {
+    gap: 6px;
+    padding: 5px 8px;
+  }
 }
 
 @media (max-width: 768px) {
   .puzzle-game {
-    padding: 5px;
-    gap: 8px;
+    padding: 4px;
+    gap: 6px;
   }
 
   .game-container {
     min-height: 400px;
-    padding: 5px;
+    padding: 4px;
     flex-direction: column;
   }
 
   .game-board {
     padding: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
 
   .puzzle-grid {
     padding: 3px;
   }
-
+  
+  .puzzle-controls-bar {
+    gap: 4px;
+    padding: 4px 6px;
+    overflow-x: auto;
+  }
 
   .control-buttons {
-    gap: 15px;
-    padding: 5px;
-    flex-wrap: wrap;
+    gap: 4px;
   }
 
   .reset-button,
   .generate-button {
-    padding: 10px 16px;
-    font-size: 1rem;
-    min-width: 120px;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    height: 32px;
   }
 
   .completion-message {
@@ -216,38 +236,42 @@
 
 @media (max-width: 480px) {
   .puzzle-game {
-    padding: 3px;
+    padding: 2px;
   }
 
   .game-container {
     min-height: 350px;
-    padding: 3px;
+    padding: 2px;
   }
 
   .game-board {
-    padding: 8px;
+    padding: 6px;
   }
 
   .puzzle-grid {
     padding: 2px;
   }
-
+  
+  .puzzle-controls-bar {
+    gap: 3px;
+    padding: 3px 4px;
+    font-size: 0.75rem;
+  }
 
   .control-buttons {
-    gap: 10px;
-    flex-direction: column;
-    align-items: center;
+    gap: 3px;
   }
 
   .reset-button,
   .generate-button {
-    width: 140px;
-    padding: 12px 16px;
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    height: 28px;
   }
 
   .completion-message {
-    font-size: 1.1rem;
-    padding: 12px 16px;
+    font-size: 1rem;
+    padding: 10px 14px;
   }
 }
 

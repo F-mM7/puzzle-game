@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { PuzzleGame } from './components/PuzzleGame';
-import { SizeSelector } from './components/SizeSelector';
 import { generatePuzzle } from './algorithms/generator';
 import { loadGameState, saveGameState, puzzleToSavedState } from './utils/storage';
 import { decodePuzzleFromURL, clearURLPuzzle } from './utils/urlShare';
@@ -83,10 +82,12 @@ function App() {
   return (
     <div className="app">
       <main className="app-main">
-        <div className="app-header">
-          <SizeSelector currentSize={gridSize} onSizeChange={handleSizeChange} />
-        </div>
-        <PuzzleGame initialPuzzle={currentPuzzle} key={`${gridSize}-${currentPuzzle.pieces.length}`} />
+        <PuzzleGame 
+          initialPuzzle={currentPuzzle} 
+          currentSize={gridSize}
+          onSizeChange={handleSizeChange}
+          key={`${gridSize}-${currentPuzzle.pieces.length}`} 
+        />
       </main>
     </div>
   );

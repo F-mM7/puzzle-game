@@ -36,7 +36,7 @@ export const ShareButton = ({ puzzle }: ShareButtonProps) => {
       onClick={handleShare}
       disabled={isSharing}
     >
-      {isSharing ? '共有中...' : showCopied ? 'コピー済み!' : '共有'}
+      {isSharing ? '...' : showCopied ? 'Copied!' : 'Share'}
     </button>
   );
 };

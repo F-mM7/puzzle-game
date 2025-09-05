@@ -3,6 +3,7 @@ import { DraggablePiece } from './DraggablePiece';
 import { PuzzleGrid } from './PuzzleGrid';
 import { PuzzleControls } from './PuzzleControls';
 import { ShareButton } from './ShareButton';
+import { SizeSelector } from './SizeSelector';
 import { CompletionMessage } from './CompletionMessage';
 import { usePuzzleState } from '../hooks/usePuzzleState';
 import { useGridLayout } from '../hooks/useGridLayout';
@@ -12,9 +13,11 @@ import './PuzzleGame.css';
 
 interface PuzzleGameProps {
   initialPuzzle: Puzzle;
+  currentSize: number;
+  onSizeChange: (newSize: number) => void;
 }
 
-export const PuzzleGame: React.FC<PuzzleGameProps> = ({ initialPuzzle }) => {
+export const PuzzleGame: React.FC<PuzzleGameProps> = ({ initialPuzzle, currentSize, onSizeChange }) => {
   const getCellSize = (containerWidth: number) => {
     if (containerWidth <= 480) return 35;
     if (containerWidth <= 768) return 40;
@@ -57,7 +60,8 @@ export const PuzzleGame: React.FC<PuzzleGameProps> = ({ initialPuzzle }) => {
 
   return (
     <div className="puzzle-game">
-      <div className="puzzle-header">
+      <div className="puzzle-controls-bar">
+        <SizeSelector currentSize={currentSize} onSizeChange={onSizeChange} />
         <PuzzleControls 
           onReset={resetPuzzle}
           onGenerateNew={generateNewPuzzle}

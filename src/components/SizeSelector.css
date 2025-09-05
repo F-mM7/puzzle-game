@@ -1,38 +1,42 @@
 .size-selector {
   position: relative;
   display: inline-block;
-  margin-bottom: 20px;
 }
 
 .size-selector-button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  min-width: 100px;
-  background: var(--button-bg, #4a4a4a);
-  border: 1px solid var(--border-color, #666);
-  border-radius: 8px;
-  color: var(--text-color, #b0b0b0);
+  padding: 8px 14px;
+  min-width: 80px;
+  background: #6c757d;
+  border: none;
+  border-radius: 20px;
+  color: white;
   cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s, border-color 0.2s;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  height: 36px;
+  box-shadow: 0 2px 6px rgba(108, 117, 125, 0.2);
+  white-space: nowrap;
 }
 
 .size-selector-button:hover {
-  background: var(--button-hover-bg, #555);
-  border-color: var(--border-hover-color, #888);
+  background: #5a6268;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
 }
 
 .size-label {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.85rem;
 }
 
 .dropdown-arrow {
-  margin-left: 12px;
-  font-size: 12px;
-  color: var(--text-secondary, #888);
+  margin-left: 6px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .size-options {
@@ -54,7 +58,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 12px;
   background: transparent;
   border: none;
   color: var(--text-color, #b0b0b0);
@@ -62,6 +66,7 @@
   text-align: center;
   transition: background-color 0.2s;
   border-bottom: 1px solid var(--border-color, #555);
+  font-size: 0.85rem;
 }
 
 .size-option:last-child {
@@ -74,4 +79,51 @@
 
 .size-option.selected {
   background: var(--button-active-bg, #5a5a5a);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .size-selector-button {
+    padding: 6px 10px;
+    min-width: 70px;
+    font-size: 0.8rem;
+    height: 32px;
+  }
+  
+  .size-label {
+    font-size: 0.8rem;
+  }
+  
+  .dropdown-arrow {
+    margin-left: 4px;
+    font-size: 9px;
+  }
+  
+  .size-option {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .size-selector-button {
+    padding: 5px 8px;
+    min-width: 60px;
+    font-size: 0.7rem;
+    height: 28px;
+  }
+  
+  .size-label {
+    font-size: 0.7rem;
+  }
+  
+  .dropdown-arrow {
+    margin-left: 3px;
+    font-size: 8px;
+  }
+  
+  .size-option {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+  }
 }
