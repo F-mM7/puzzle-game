@@ -1,0 +1,62 @@
+.draggable-piece {
+  position: absolute;
+  transition: left 0.3s ease, top 0.3s ease, opacity 0.3s ease;
+  user-select: none;
+}
+
+.draggable-piece.dragging {
+  transition: none;
+  filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+}
+
+.draggable-piece:not(.placed):hover {
+  filter: brightness(1.1) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+}
+
+.draggable-piece.placed {
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  pointer-events: all;
+}
+
+.draggable-piece.placed:hover {
+  filter: brightness(0.9);
+}
+
+/* タッチデバイス向けの改善 */
+@media (hover: none) and (pointer: coarse) {
+  .draggable-piece {
+    /* タッチ領域を少し大きく */
+    touch-action: none;
+  }
+
+  .draggable-piece:not(.placed):hover {
+    filter: none; /* ホバーエフェクトを無効化 */
+  }
+
+  .draggable-piece.placed:hover {
+    filter: none; /* ホバーエフェクトを無効化 */
+  }
+
+  .draggable-piece:not(.dragging):active {
+    filter: brightness(1.1) drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+    transform: scale(1.05);
+  }
+
+  .draggable-piece.placed:active {
+    filter: brightness(0.9);
+    transform: scale(1.05);
+  }
+}
+
+/* 小さい画面でのピースサイズ調整 */
+@media (max-width: 768px) {
+  .draggable-piece {
+    /* スマホでドラッグしやすくするための調整 */
+  }
+}
+
+@media (max-width: 480px) {
+  .draggable-piece {
+    /* より小さい画面での調整 */
+  }
+}

@@ -1,0 +1,52 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* ダークテーマの色定義 */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-accent: #e0e0e0;
+  --border-color: #555555;
+  --border-light: #666666;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-light: rgba(0, 0, 0, 0.3);
+  
+  /* ボタンカラー（ダークテーマ対応） */
+  --button-primary: #4CAF50;
+  --button-primary-hover: #45a049;
+  --button-secondary: #2196F3;
+  --button-secondary-hover: #1976D2;
+  --button-success: #4CAF50;
+  --button-success-text: #ffffff;
+  
+  /* グリッドカラー */
+  --grid-bg: #2d2d2d;
+  --grid-border: #555555;
+  --grid-cell-bg: #1a1a1a;
+  --grid-cell-border: #666666;
+  --grid-cell-occupied: #777777;
+  
+  /* パズルボード */
+  --board-bg: #2d2d2d;
+  --board-border: #555555;
+  --completion-bg: rgba(45, 45, 45, 0.95);
+  --completion-text: #4CAF50;
+  
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,42 @@
+:root {
+  /* パズルピースの色（ダークテーマ対応版） */
+  --piece-1: #FF6B6B;
+  --piece-2: #4ECDC4;
+  --piece-3: #45B7D1;
+  --piece-4: #FFA07A;
+  --piece-5: #98D8C8;
+  --piece-6: #F7DC6F;
+  --piece-7: #BB8FCE;
+  --piece-8: #85C1E2;
+  
+  /* UI色 */
+  --text-color: #b0b0b0;
+  --text-primary: #ffffff;
+  --text-secondary: #888;
+  --button-bg: #4a4a4a;
+  --button-hover-bg: #555;
+  --button-active-bg: #5a5a5a;
+  --border-color: #666;
+  --border-hover-color: #888;
+  --dropdown-bg: #3a3a3a;
+  --accent-color: #7fb3d3;
+}
+
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: var(--text-primary);
+}
+
+.app-main {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}

@@ -1,0 +1,267 @@
+.puzzle-game {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.puzzle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+
+.game-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+  padding: 10px;
+}
+
+.game-board {
+  position: relative;
+  background: var(--board-bg);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-color);
+  overflow: visible;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.puzzle-grid {
+  display: inline-block;
+  border: 3px solid var(--grid-border);
+  background-color: var(--grid-bg);
+  padding: 5px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.grid-row {
+  display: flex;
+}
+
+.grid-cell {
+  border: 2px solid var(--grid-cell-border);
+  background-color: var(--grid-cell-bg);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.grid-cell.occupied {
+  border-color: var(--grid-cell-occupied);
+}
+
+.pieces-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.pieces-layer > * {
+  pointer-events: all;
+}
+
+
+.completion-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--completion-bg);
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px var(--shadow-color);
+  border: 1px solid var(--border-light);
+  font-size: 1.5rem;
+  color: var(--completion-text);
+  font-weight: bold;
+  animation: bounce 0.5s ease-in-out;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+@keyframes bounce {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1); 
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.05); 
+  }
+}
+
+.reset-button {
+  background-color: var(--button-primary);
+  color: var(--button-success-text);
+  border: none;
+  padding: 12px 30px;
+  font-size: 1.1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.reset-button:hover {
+  background-color: var(--button-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+}
+
+.control-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 10px;
+}
+
+.generate-button {
+  border: none;
+  padding: 12px 20px;
+  font-size: 1.1rem;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  background-color: var(--button-secondary);
+  color: var(--text-primary);
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+}
+
+.generate-button:hover {
+  background-color: var(--button-secondary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+}
+
+.generate-button:active {
+  transform: translateY(0);
+}
+
+/* モバイル・タブレット対応 */
+@media (max-width: 1200px) {
+  .puzzle-game {
+    padding: 5px;
+    gap: 10px;
+  }
+
+  .game-container {
+    min-height: 500px;
+    padding: 5px;
+  }
+
+  .game-board {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .puzzle-game {
+    padding: 5px;
+    gap: 8px;
+  }
+
+  .game-container {
+    min-height: 400px;
+    padding: 5px;
+    flex-direction: column;
+  }
+
+  .game-board {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .puzzle-grid {
+    padding: 3px;
+  }
+
+
+  .control-buttons {
+    gap: 15px;
+    padding: 5px;
+    flex-wrap: wrap;
+  }
+
+  .reset-button,
+  .generate-button {
+    padding: 10px 16px;
+    font-size: 1rem;
+    min-width: 120px;
+  }
+
+  .completion-message {
+    font-size: 1.2rem;
+    padding: 15px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .puzzle-game {
+    padding: 3px;
+  }
+
+  .game-container {
+    min-height: 350px;
+    padding: 3px;
+  }
+
+  .game-board {
+    padding: 8px;
+  }
+
+  .puzzle-grid {
+    padding: 2px;
+  }
+
+
+  .control-buttons {
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .reset-button,
+  .generate-button {
+    width: 140px;
+    padding: 12px 16px;
+  }
+
+  .completion-message {
+    font-size: 1.1rem;
+    padding: 12px 16px;
+  }
+}
+
+/* タッチデバイス向けの改善 */
+@media (hover: none) and (pointer: coarse) {
+  .reset-button:hover,
+  .generate-button:hover {
+    transform: none;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  }
+
+  .reset-button:active,
+  .generate-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+}
