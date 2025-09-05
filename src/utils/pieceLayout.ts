@@ -55,7 +55,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
         {
           x: margin,
           y: gridTop,
-          width: sideSpace - margin,
+          width: Math.max(50, sideSpace - margin),
           height: boardSize,
           maxPieces: 6
         },
@@ -63,7 +63,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
         {
           x: gridCenterX + boardSize / 2 + margin,
           y: gridTop,
-          width: sideSpace - margin,
+          width: Math.max(50, sideSpace - margin),
           height: boardSize,
           maxPieces: 6
         },
@@ -72,7 +72,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
           x: margin,
           y: gridBottom + margin,
           width: containerWidth - margin * 2,
-          height: bottomSpace - margin,
+          height: Math.max(100, Math.min(bottomSpace - margin, containerHeight - (gridBottom + margin * 2))),
           maxPieces: 12
         }
       ]
@@ -88,7 +88,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
         {
           x: margin,
           y: gridTop,
-          width: sideSpace - margin,
+          width: Math.max(50, sideSpace - margin),
           height: boardSize,
           maxPieces: 8
         },
@@ -96,7 +96,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
         {
           x: gridCenterX + boardSize / 2 + margin,
           y: gridTop,
-          width: sideSpace - margin,
+          width: Math.max(50, sideSpace - margin),
           height: boardSize,
           maxPieces: 8
         },
@@ -105,7 +105,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
           x: margin,
           y: gridBottom + margin,
           width: containerWidth - margin * 2,
-          height: Math.max(200, bottomSpace - margin),
+          height: Math.max(150, Math.min(bottomSpace - margin, containerHeight - (gridBottom + margin * 2))),
           maxPieces: 8
         }
       ]
@@ -121,7 +121,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
         x: margin,
         y: gridBottom + margin,
         width: containerWidth - margin * 2,
-        height: Math.max(400, bottomSpace - margin),
+        height: Math.max(200, Math.min(bottomSpace - margin, containerHeight - (gridBottom + margin * 2))),
         maxPieces: 24
       }
     ]
@@ -161,10 +161,18 @@ const arrangeInArea = (
       break;
     }
     
-    // 位置を決定（コンテナ境界内に収める）
+    // 位置を決定（エリア境界内に収める）
+    // ピースがエリアからはみ出さない最大位置を計算
+    const maxX = area.x + area.width - bounds.width;
+    const maxY = area.y + area.height - bounds.height;
+    
+    // エリアがピースより小さい場合は、エリアの左上に配置
+    const clampedMaxX = Math.max(area.x, maxX);
+    const clampedMaxY = Math.max(area.y, maxY);
+    
     const position = {
-      x: Math.max(0, Math.min(currentX, area.x + area.width - bounds.width)),
-      y: Math.max(0, Math.min(currentY, area.y + area.height - bounds.height))
+      x: Math.max(area.x, Math.min(currentX, clampedMaxX)),
+      y: Math.max(area.y, Math.min(currentY, clampedMaxY))
     };
     
     // 重複チェック
@@ -200,8 +208,9 @@ export const calculateInitialPositions = (
   gridOffset: Position = { x: 0, y: 0 }
 ): Array<{ piece: Piece; position: Position }> => {
   // ビューポートサイズが小さすぎる場合の最小値を設定
-  const effectiveWidth = Math.max(containerWidth, 600);
-  const effectiveHeight = Math.max(containerHeight, 800);
+  // 実際のコンテナサイズが小さい場合はそれを尊重する
+  const effectiveWidth = containerWidth > 0 ? Math.max(containerWidth, 400) : 1600;
+  const effectiveHeight = containerHeight > 0 ? Math.max(containerHeight, 600) : 1000;
   
   // 実際のグリッド領域を計算（除外領域として使用）
   const gridSize = cellSize * 6; // 6x6のグリッド
@@ -217,11 +226,14 @@ export const calculateInitialPositions = (
   // 配置戦略を取得
   const strategy = getPlacementStrategy(effectiveWidth, effectiveHeight, cellSize);
   
+  // エリアが小さすぎる場合は有効なエリアのみを使用
+  const validAreas = strategy.areas.filter(area => area.width > 50 && area.height > 50);
+  
   // 各エリアにピースを配置
   const allPositions: Array<{ piece: Piece; position: Position }> = [];
   let remainingPieces = [...pieces];
   
-  for (const area of strategy.areas) {
+  for (const area of validAreas) {
     const piecesToPlace = remainingPieces.slice(0, area.maxPieces);
     const areaPositions = arrangeInArea(piecesToPlace, area, cellSize, gridBounds);
     
@@ -230,22 +242,41 @@ export const calculateInitialPositions = (
   }
   
   // 配置できなかったピースのフォールバック（エラー処理）
-  let fallbackY = Math.max(50, effectiveHeight - 300);
-  for (const piece of remainingPieces) {
+  const margin = 20;
+  let fallbackY = Math.max(50, effectiveHeight - 200); // より控えめな開始位置
+  const columnsPerRow = 3;
+  
+  for (let i = 0; i < remainingPieces.length; i++) {
+    const piece = remainingPieces[i];
     const bounds = calculatePieceBounds(piece, cellSize);
-    const fallbackX = 20 + (allPositions.length % 5) * (bounds.width + 20);
+    const column = i % columnsPerRow;
+    const row = Math.floor(i / columnsPerRow);
+    
+    // 列位置を計算
+    const fallbackX = margin + column * (bounds.width + margin);
+    
+    // 行位置を計算（画面下にはみ出さないよう制限）
+    const rowY = fallbackY + row * (bounds.height + margin);
+    
+    // 境界チェックを厳格にして、確実に画面内に収める
+    // ピースがコンテナからはみ出さない最大位置を計算
+    const maxX = effectiveWidth - bounds.width - margin;
+    const maxY = effectiveHeight - bounds.height - margin;
+    
+    // コンテナがピースより小さい場合の安全な位置
+    const clampedMaxX = Math.max(margin, maxX);
+    const clampedMaxY = Math.max(50, maxY);
+    
+    // 画面下にはみ出る場合は、利用可能な高さ内で重ねて配置
+    const finalY = Math.min(rowY, clampedMaxY);
     
     allPositions.push({
       piece,
       position: {
-        x: Math.max(0, Math.min(fallbackX, effectiveWidth - bounds.width)),
-        y: Math.max(0, Math.min(fallbackY, effectiveHeight - bounds.height))
+        x: Math.max(margin, Math.min(fallbackX, clampedMaxX)),
+        y: Math.max(50, finalY)
       }
     });
-    
-    if ((allPositions.length % 5) === 4) {
-      fallbackY += bounds.height + 20;
-    }
   }
   
   // ピースの順番を保持したまま返す
