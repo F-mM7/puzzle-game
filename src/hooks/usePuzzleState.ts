@@ -78,7 +78,7 @@ export const usePuzzleState = (
       grid: cleanGrid, // 初期状態でもクリーンなグリッド
       pieces: initialPuzzle.pieces.map(piece => ({
         ...piece,
-        screenPosition: { x: 0, y: 0 }, // 仮の位置
+        screenPosition: piece.screenPosition || { x: 0, y: 0 }, // gridOffset確定まで仮位置
         gridPosition: undefined,
         isPlaced: false
       }))
@@ -88,21 +88,12 @@ export const usePuzzleState = (
   const [isComplete, setIsComplete] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // gridOffsetが確定したら初期化時のみピース位置を再計算
+  // gridOffsetとcontainerSizeが確定したときに初期化実行
   useEffect(() => {
-    console.log('初期化チェック:', {
-      gridOffset,
-      containerSize,
-      isInitialized,
-      'gridOffset有効': (gridOffset.x > 0 && gridOffset.y > 0),
-      'containerSize有効': (containerSize.width > 0 && containerSize.height > 0)
-    });
-    
-    // gridOffsetが正の値（DOM確定後）かつcontainerSizeも確定している場合のみ実行
+    // gridOffsetとcontainerSizeの両方が確定している場合のみ初期化実行
     if ((gridOffset.x > 0 && gridOffset.y > 0) && 
         (containerSize.width > 0 && containerSize.height > 0) && 
         !isInitialized) {
-      console.log('初期化実行: ピース位置を計算中...');
       const newData = createPuzzleWithPositions(originalPuzzle);
       setPuzzle(newData.puzzle);
       setDefaultPositions(newData.defaultPositions);
@@ -110,22 +101,31 @@ export const usePuzzleState = (
     }
   }, [gridOffset, containerSize, originalPuzzle, isInitialized, createPuzzleWithPositions]);
 
-  // gridOffsetが変更された時に既存の配置済みピースの位置を更新
+  // gridOffsetが変更された時に全てのピースの位置を再計算
   useEffect(() => {
     if (isInitialized && (gridOffset.x > 0 && gridOffset.y > 0)) {
-      const hasPlacedPieces = puzzle.pieces.some(piece => piece.isPlaced && piece.gridPosition);
-      if (hasPlacedPieces) {
-        
-        // 配置済みピースの位置を強制的に再計算するためにpuzzle状態を更新
-        setPuzzle(currentPuzzle => ({
-          ...currentPuzzle,
-          pieces: currentPuzzle.pieces.map(piece => ({ ...piece })) // 強制的にオブジェクト再作成
-        }));
-      }
+      const newData = createPuzzleWithPositions(originalPuzzle);
+      
+      // 既に配置されているピースの状態を保持しながら、未配置ピースの位置を更新
+      const updatedPuzzle = {
+        ...newData.puzzle,
+        pieces: newData.puzzle.pieces.map((newPiece) => {
+          const currentPiece = puzzle.pieces.find(p => p.id === newPiece.id);
+          if (currentPiece && currentPiece.isPlaced) {
+            // 配置済みピースはそのまま
+            return currentPiece;
+          }
+          // 未配置ピースは新しい位置を使用
+          return newPiece;
+        })
+      };
+      
+      setPuzzle(updatedPuzzle);
+      setDefaultPositions(newData.defaultPositions);
     }
     // puzzle.piecesを依存配列に含めると無限ループが発生するため意図的に除外
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gridOffset, isInitialized]);
+  }, [gridOffset, isInitialized, originalPuzzle, createPuzzleWithPositions]);
 
   const canPlacePiece = useCallback((piece: Piece, startX: number, startY: number, grid: Cell[][]): boolean => {
     for (const cell of piece.cells) {
@@ -243,18 +243,12 @@ export const usePuzzleState = (
   }, [puzzle, defaultPositions]);
 
   const resetPuzzle = useCallback(() => {
-    console.log('リセット実行:', {
-      gridOffset,
-      containerSize,
-      'gridOffset有効': (gridOffset.x > 0 && gridOffset.y > 0),
-      'containerSize有効': (containerSize.width > 0 && containerSize.height > 0)
-    });
     const resetData = createPuzzleWithPositions(originalPuzzle);
     setPuzzle(resetData.puzzle);
     setDefaultPositions(resetData.defaultPositions);
     setIsComplete(false);
     setIsInitialized(true); // リセット時は初期化済みとする
-  }, [originalPuzzle, createPuzzleWithPositions, gridOffset, containerSize]);
+  }, [originalPuzzle, createPuzzleWithPositions]);
 
   const generateNewPuzzle = useCallback(() => {
     const basePuzzle = generatePuzzle(puzzle.size);

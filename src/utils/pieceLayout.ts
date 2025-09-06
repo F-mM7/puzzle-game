@@ -48,14 +48,6 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
   
   // ピースの最大サイズを計算
   const maxPieceWidth = Math.max(...pieceBounds.map(b => b.width), 150);
-  const maxPieceHeight = Math.max(...pieceBounds.map(b => b.height), 150);
-  
-  console.log('=== 配置戦略計算 ===');
-  console.log(`コンテナサイズ: ${containerWidth}x${containerHeight}`);
-  console.log(`グリッドオフセット: (${gridOffset.x}, ${gridOffset.y})`);
-  console.log(`グリッド位置: 中央X=${gridCenterX}, 上=${gridTop}, 下=${gridBottom}`);
-  console.log(`利用可能スペース: 横=${sideSpace}, 上=${topSpace}, 下=${bottomSpace}`);
-  console.log(`最大ピースサイズ: ${maxPieceWidth}x${maxPieceHeight}`);
   
   // デスクトップ（幅1200px以上）
   if (containerWidth > 1200) {
@@ -63,10 +55,6 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
     const rightWidth = Math.min(sideSpace - margin, maxPieceWidth * 2 + margin * 3);
     // 下側エリアは実際の利用可能高さをフル活用
     const bottomHeight = Math.max(100, bottomSpace);
-    
-    console.log('配置戦略: デスクトップ');
-    console.log(`左エリア幅: ${leftWidth}, 右エリア幅: ${rightWidth}`);
-    console.log(`下エリア高さ: ${bottomHeight}`);
     
     return {
       type: 'desktop',
@@ -115,12 +103,8 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
   if (containerWidth > 768) {
     const bottomHeight = Math.max(100, bottomSpace);
     
-    console.log('配置戦略: タブレット');
-    console.log(`下エリア高さ候補: ${bottomHeight}`);
-    
     // サイドスペースが狭い場合は下部のみ使用
     if (sideSpace < maxPieceWidth + margin * 2) {
-      console.log('サイドスペース不足のため上部と下部を使用');
       return {
         type: 'tablet',
         areas: [
@@ -195,9 +179,6 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
   // 実際の利用可能高さをフル活用
   const mobileBottomHeight = Math.max(150, bottomSpace);
   
-  console.log('配置戦略: モバイル');
-  console.log(`下エリア高さ: ${mobileBottomHeight}`);
-  
   return {
     type: 'mobile',
     areas: [
@@ -230,9 +211,6 @@ const arrangeInArea = (
   cellSize: number = 50,
   excludedArea: { x: number; y: number; width: number; height: number } | null = null
 ): Array<{ piece: Piece; position: Position }> => {
-  console.log(`\n--- エリア内配置開始 (優先度: ${area.priority}) ---`);
-  console.log(`エリア: x=${area.x}, y=${area.y}, 幅=${area.width}, 高さ=${area.height}`);
-  console.log(`最大ピース数: ${area.maxPieces}, 配置候補ピース数: ${pieces.length}`);
   
   const positions: Array<{ piece: Piece; position: Position }> = [];
   const occupiedRects: Array<{ x: number; y: number; width: number; height: number }> = [];
@@ -253,7 +231,6 @@ const arrangeInArea = (
   
   for (const piece of sortedPieces) {
     if (positions.length >= area.maxPieces) {
-      console.log(`エリアの最大ピース数に到達`);
       break;
     }
     
@@ -261,7 +238,6 @@ const arrangeInArea = (
     
     // 次の行に移動が必要かチェック
     if (currentX + bounds.width > area.x + area.width) {
-      console.log(`ピース${piece.id}: 行幅を超えるため次の行へ`);
       currentX = area.x;
       currentY += rowHeight + padding;
       rowHeight = 0;
@@ -269,7 +245,6 @@ const arrangeInArea = (
     
     // エリアの高さを超える場合はスキップ
     if (currentY + bounds.height > area.y + area.height) {
-      console.log(`ピース${piece.id}: エリア高さを超えるためスキップ (現在Y=${currentY}, ピース高=${bounds.height}, エリア下端=${area.y + area.height})`);
       break; // エリアの高さを超えたら終了
     }
     
@@ -292,19 +267,15 @@ const arrangeInArea = (
     const hasGridOverlap = excludedArea && doRectsOverlap(pieceRect, excludedArea, padding);
     
     if (!hasOverlap && !hasGridOverlap) {
-      console.log(`ピース${piece.id}: 配置成功 (${position.x}, ${position.y})`);
       positions.push({ piece, position });
       occupiedRects.push(pieceRect);
       
       // 次の位置を更新
       currentX = position.x + bounds.width + padding;
       rowHeight = Math.max(rowHeight, bounds.height);
-    } else {
-      console.log(`ピース${piece.id}: 重複のためスキップ (ピース重複:${hasOverlap}, グリッド重複:${hasGridOverlap})`);
     }
   }
   
-  console.log(`エリア内配置結果: ${positions.length}個配置`);
   return positions;
 };
 
@@ -316,17 +287,10 @@ export const calculateInitialPositions = (
   cellSize: number = 50,
   gridOffset: Position = { x: 0, y: 0 }
 ): Array<{ piece: Piece; position: Position }> => {
-  console.log('\n========== ピース初期配置計算開始 ==========');
-  console.log(`入力パラメータ:`);
-  console.log(`  コンテナ: ${containerWidth}x${containerHeight}`);
-  console.log(`  セルサイズ: ${cellSize}`);
-  console.log(`  グリッドオフセット: (${gridOffset.x}, ${gridOffset.y})`);
-  console.log(`  ピース数: ${pieces.length}`);
   
   // ビューポートサイズが小さすぎる場合の最小値を設定
   const effectiveWidth = containerWidth > 0 ? Math.max(containerWidth, 400) : 1600;
   const effectiveHeight = containerHeight > 0 ? Math.max(containerHeight, 600) : 1000;
-  console.log(`実効コンテナサイズ: ${effectiveWidth}x${effectiveHeight}`);
   
   // すべてのピースのサイズを事前計算
   const pieceBounds = pieces.map(piece => calculatePieceBounds(piece, cellSize));
@@ -355,10 +319,6 @@ export const calculateInitialPositions = (
     .filter(area => area.width > 30 && area.height > 30)
     .sort((a, b) => (a.priority || 999) - (b.priority || 999)); // 優先度順にソート
   
-  console.log(`\n有効な配置エリア数: ${validAreas.length}`);
-  validAreas.forEach((area, i) => {
-    console.log(`  エリア${i+1} (優先度${area.priority}): (${area.x}, ${area.y}) サイズ:${area.width}x${area.height} 最大${area.maxPieces}個`);
-  });
   
   // 各エリアにピースを配置
   const allPositions: Array<{ piece: Piece; position: Position }> = [];
@@ -378,11 +338,9 @@ export const calculateInitialPositions = (
   for (const area of validAreas) {
     const unplacedPieces = sortedPieces.filter(p => !placedPieceIds.has(p.id));
     if (unplacedPieces.length === 0) {
-      console.log('すべてのピースが配置済み');
       break;
     }
     
-    console.log(`\n未配置ピース: ${unplacedPieces.length}個`);
     const piecesToPlace = unplacedPieces.slice(0, area.maxPieces);
     const areaPositions = arrangeInArea(piecesToPlace, area, cellSize, gridBounds);
     
@@ -395,13 +353,9 @@ export const calculateInitialPositions = (
   // 改善されたフォールバック配置（安定版）
   const unplacedPieces = pieces.filter(p => !placedPieceIds.has(p.id));
   if (unplacedPieces.length > 0) {
-    console.log(`\n警告: ${unplacedPieces.length}個のピースがエリア内に配置できず、フォールバック配置を使用`);
-    console.log(`未配置ピースID: ${unplacedPieces.map(p => p.id).join(', ')}`);
-    
     const margin = 20;
     const padding = 12;
     const safeZoneTop = Math.max(gridBounds.y + gridBounds.height + margin, 100);
-    console.log(`フォールバックエリア: Y=${safeZoneTop}から開始`);
     
     // シンプルな行ベース配置で重複回避
     let currentX = margin;
@@ -427,7 +381,6 @@ export const calculateInitialPositions = (
         y: Math.min(currentY, maxY)
       };
       
-      console.log(`ピース${piece.id}: フォールバック位置 (${position.x}, ${position.y})`);
       allPositions.push({ piece, position });
       placedPieceIds.add(piece.id);
       
@@ -438,14 +391,11 @@ export const calculateInitialPositions = (
   }
   
   // ピースの元の順番を保持して返す
-  console.log(`\n最終結果: ${placedPieceIds.size}/${pieces.length}個のピースを配置`);
-  console.log('========== ピース初期配置計算終了 ==========\n');
   
   return pieces.map(piece => {
     const found = allPositions.find(p => p.piece.id === piece.id);
     if (!found) {
       // 万が一配置できなかった場合の最終フォールバック
-      console.log(`エラー: ピース${piece.id}の位置が見つからず、緊急フォールバック位置を使用`);
       const bounds = calculatePieceBounds(piece, cellSize);
       const safeX = Math.max(20, Math.min(50, effectiveWidth - bounds.width - 20));
       const safeY = Math.max(50, Math.min(100, effectiveHeight - bounds.height - 20));

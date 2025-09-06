@@ -14,7 +14,7 @@ const restorePuzzleFromSaved = (savedState: SavedGameState): Puzzle => {
       ...piece,
       isPlaced: false,
       gridPosition: undefined,
-      screenPosition: undefined
+      screenPosition: undefined // usePuzzleStateで位置計算される
     })),
     grid: Array(savedState.puzzleSize).fill(null).map(() => 
       Array(savedState.puzzleSize).fill(null).map(() => ({ pieceId: null }))
