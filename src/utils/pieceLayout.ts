@@ -169,7 +169,7 @@ const getPlacementStrategy = (containerWidth: number, containerHeight: number, c
   };
 };
 
-// スマートグリッド配置アルゴリズム（エリア内での最適配置）
+// 改善されたグリッド配置アルゴリズム（安定版）
 const arrangeInArea = (
   pieces: Piece[],
   area: { x: number; y: number; width: number; height: number; maxPieces: number; priority?: number },
@@ -179,102 +179,62 @@ const arrangeInArea = (
   const positions: Array<{ piece: Piece; position: Position }> = [];
   const occupiedRects: Array<{ x: number; y: number; width: number; height: number }> = [];
   
-  // エリア内での配置パラメータ
-  const minPadding = 8;
-  const maxPadding = 20;
+  const padding = 12;
   
-  // ピースをサイズでソート（大きいものから配置）
+  // ピースをサイズでソート
   const sortedPieces = [...pieces].sort((a, b) => {
     const boundsA = calculatePieceBounds(a, cellSize);
     const boundsB = calculatePieceBounds(b, cellSize);
     return (boundsB.width * boundsB.height) - (boundsA.width * boundsA.height);
   });
   
-  // グリッド配置を試みる
+  // 行ベースの配置でスペースを最大限活用
   let currentX = area.x;
   let currentY = area.y;
   let rowHeight = 0;
-  let placedInRow = 0;
   
   for (const piece of sortedPieces) {
     if (positions.length >= area.maxPieces) break;
     
     const bounds = calculatePieceBounds(piece, cellSize);
     
-    // 適応的なパディング
-    const pieceArea = bounds.width * bounds.height;
-    const maxArea = cellSize * cellSize * 16;
-    const paddingRatio = Math.min(1, pieceArea / maxArea);
-    const padding = minPadding + (maxPadding - minPadding) * paddingRatio;
-    
-    // 配置試行
-    let placed = false;
-    
     // 次の行に移動が必要かチェック
     if (currentX + bounds.width > area.x + area.width) {
       currentX = area.x;
       currentY += rowHeight + padding;
       rowHeight = 0;
-      placedInRow = 0;
     }
     
-    // エリアの高さを超える場合は次の行を試す
+    // エリアの高さを超える場合はスキップ
     if (currentY + bounds.height > area.y + area.height) {
-      // まだ配置可能ピース数に余裕がある場合のみ、最小間隔で次の行を試す
-      if (positions.length < area.maxPieces - 3 && rowHeight > 0) {
-        currentX = area.x;
-        currentY += minPadding;
-        rowHeight = 0;
-        placedInRow = 0;
-        // 再度同じピースで試す
-        continue;
-      } else {
-        // 配置できない場合はスキップ
-        continue;
-      }
+      break; // エリアの高さを超えたら終了
     }
-      
-    // 候補位置
-    const candidatePosition = {
+    
+    // 位置を決定（エリア内に収める）
+    const position = {
       x: Math.min(currentX, Math.max(area.x, area.x + area.width - bounds.width)),
       y: Math.min(currentY, Math.max(area.y, area.y + area.height - bounds.height))
     };
     
     // 重複チェック用の矩形
     const pieceRect = {
-      x: candidatePosition.x,
-      y: candidatePosition.y,
+      x: position.x,
+      y: position.y,
       width: bounds.width,
       height: bounds.height
     };
     
     // 重複チェック
-    const hasOverlap = occupiedRects.some(rect => doRectsOverlap(pieceRect, rect, padding / 2));
+    const hasOverlap = occupiedRects.some(rect => doRectsOverlap(pieceRect, rect, padding));
     const hasGridOverlap = excludedArea && doRectsOverlap(pieceRect, excludedArea, padding);
     
     if (!hasOverlap && !hasGridOverlap) {
-      positions.push({ piece, position: candidatePosition });
+      positions.push({ piece, position });
       occupiedRects.push(pieceRect);
       
       // 次の位置を更新
-      currentX = candidatePosition.x + bounds.width + padding;
+      currentX = position.x + bounds.width + padding;
       rowHeight = Math.max(rowHeight, bounds.height);
-      placedInRow++;
-      placed = true;
-    }
-    
-    // 配置できなかった場合、次の位置を試す
-    if (!placed) {
-      // 現在の行にスペースがある場合は少しずらす
-      if (currentX + bounds.width + padding * 2 <= area.x + area.width) {
-        currentX += padding;
-      } else {
-        // 次の行へ
-        currentX = area.x;
-        currentY += rowHeight + padding;
-        rowHeight = 0;
-        placedInRow = 0;
-      }
     }
   }
   
@@ -348,25 +308,20 @@ export const calculateInitialPositions = (
     });
   }
   
-  // 配置できなかったピースのフォールバック（改善版）
+  // 改善されたフォールバック配置（安定版）
   const unplacedPieces = pieces.filter(p => !placedPieceIds.has(p.id));
   if (unplacedPieces.length > 0) {
-    const margin = 15;
-    const safeZoneTop = gridBounds.y + gridBounds.height + margin;
-    const availableHeight = effectiveHeight - safeZoneTop - margin;
+    const margin = 20;
+    const padding = 12;
+    const safeZoneTop = Math.max(gridBounds.y + gridBounds.height + margin, 100);
     
-    // 動的な列数計算（より綾密に）
-    const avgPieceWidth = pieceBounds.reduce((sum, b) => sum + b.width, 0) / pieceBounds.length;
-    const columnsPerRow = Math.max(1, Math.floor((effectiveWidth - margin * 2) / (avgPieceWidth + margin)));
-    
-    // グリッド配置でフォールバックエリアを最大限活用
+    // シンプルな行ベース配置で重複回避
     let currentX = margin;
     let currentY = safeZoneTop;
     let rowHeight = 0;
     
     for (const piece of unplacedPieces) {
       const bounds = calculatePieceBounds(piece, cellSize);
-      const padding = 10;
       
       // 次の行に移動が必要かチェック
       if (currentX + bounds.width > effectiveWidth - margin) {
@@ -375,17 +330,13 @@ export const calculateInitialPositions = (
         rowHeight = 0;
       }
       
-      // 画面下端を超えないように調整
-      const maxY = Math.max(safeZoneTop, effectiveHeight - bounds.height - margin);
-      const finalY = Math.min(currentY, maxY);
-      
-      // 幅の調整
+      // 画面境界内に収める
       const maxX = Math.max(margin, effectiveWidth - bounds.width - margin);
-      const finalX = Math.min(currentX, maxX);
+      const maxY = Math.max(safeZoneTop, effectiveHeight - bounds.height - margin);
       
       const position = {
-        x: finalX,
-        y: finalY
+        x: Math.min(currentX, maxX),
+        y: Math.min(currentY, maxY)
       };
       
       allPositions.push({ piece, position });
@@ -403,8 +354,8 @@ export const calculateInitialPositions = (
     if (!found) {
       // 万が一配置できなかった場合の最終フォールバック
       const bounds = calculatePieceBounds(piece, cellSize);
-      const safeX = Math.min(50, Math.max(20, effectiveWidth - bounds.width - 20));
-      const safeY = Math.min(100, Math.max(50, effectiveHeight - bounds.height - 20));
+      const safeX = Math.max(20, Math.min(50, effectiveWidth - bounds.width - 20));
+      const safeY = Math.max(50, Math.min(100, effectiveHeight - bounds.height - 20));
       return { piece, position: { x: safeX, y: safeY } };
     }
     return found;

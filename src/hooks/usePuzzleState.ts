@@ -34,8 +34,14 @@ export const usePuzzleState = (
     );
     const defaultPositions = new Map<number, Position>();
     
+    // グリッドを完全に初期化（重要！）
+    const freshGrid = Array(basePuzzle.size).fill(null).map(() => 
+      Array(basePuzzle.size).fill(null).map(() => ({ pieceId: null }))
+    );
+    
     const puzzle = {
       ...basePuzzle,
+      grid: freshGrid, // 新しい空のグリッドを使用
       pieces: basePuzzle.pieces.map((piece, index) => {
         const position = positions[index].position;
         defaultPositions.set(piece.id, position);
@@ -51,17 +57,33 @@ export const usePuzzleState = (
     return { puzzle, defaultPositions };
   }, [containerSize.width, containerSize.height, gridOffset, cellSize]);
 
-  const [originalPuzzle, setOriginalPuzzle] = useState<Puzzle>(initialPuzzle);
+  const [originalPuzzle, setOriginalPuzzle] = useState<Puzzle>(() => {
+    // originalPuzzleもグリッドをクリアして保存
+    const cleanGrid = Array(initialPuzzle.size).fill(null).map(() => 
+      Array(initialPuzzle.size).fill(null).map(() => ({ pieceId: null }))
+    );
+    return {
+      ...initialPuzzle,
+      grid: cleanGrid
+    };
+  });
+  
   // 初期状態では位置計算を行わず、DOM確定後に初期化
-  const [puzzle, setPuzzle] = useState<Puzzle>(() => ({
-    ...initialPuzzle,
-    pieces: initialPuzzle.pieces.map(piece => ({
-      ...piece,
-      screenPosition: { x: 0, y: 0 }, // 仮の位置
-      gridPosition: undefined,
-      isPlaced: false
-    }))
-  }));
+  const [puzzle, setPuzzle] = useState<Puzzle>(() => {
+    const cleanGrid = Array(initialPuzzle.size).fill(null).map(() => 
+      Array(initialPuzzle.size).fill(null).map(() => ({ pieceId: null }))
+    );
+    return {
+      ...initialPuzzle,
+      grid: cleanGrid, // 初期状態でもクリーンなグリッド
+      pieces: initialPuzzle.pieces.map(piece => ({
+        ...piece,
+        screenPosition: { x: 0, y: 0 }, // 仮の位置
+        gridPosition: undefined,
+        isPlaced: false
+      }))
+    };
+  });
   const [defaultPositions, setDefaultPositions] = useState<Map<number, Position>>(new Map());
   const [isComplete, setIsComplete] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -220,7 +242,16 @@ export const usePuzzleState = (
   }, [originalPuzzle, createPuzzleWithPositions]);
 
   const generateNewPuzzle = useCallback(() => {
-    const newPuzzle = generatePuzzle(puzzle.size);
+    const basePuzzle = generatePuzzle(puzzle.size);
+    // 新しいパズルのグリッドをクリア
+    const cleanGrid = Array(basePuzzle.size).fill(null).map(() => 
+      Array(basePuzzle.size).fill(null).map(() => ({ pieceId: null }))
+    );
+    const newPuzzle = {
+      ...basePuzzle,
+      grid: cleanGrid
+    };
+    
     const newData = createPuzzleWithPositions(newPuzzle);
 
     setOriginalPuzzle(newPuzzle);
