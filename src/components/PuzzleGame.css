@@ -1,11 +1,11 @@
 .puzzle-game {
-  width: 100%;
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 5px;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  padding: 5px;
+  box-sizing: border-box;
 }
 
 .puzzle-controls-bar {
@@ -26,8 +26,9 @@
   justify-content: center;
   position: relative;
   width: 100%;
-  min-height: 500px;
+  flex: 1;
   padding: 5px;
+  overflow: hidden;
 }
 
 .game-board {

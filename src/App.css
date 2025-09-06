@@ -23,13 +23,14 @@
 }
 
 .app {
-  min-height: 100vh;
+  height: 100vh;
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   color: var(--text-primary);
+  overflow: hidden;
 }
 
 .app-main {
-  padding: 10px;
-  max-width: 1600px;
-  margin: 0 auto;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
