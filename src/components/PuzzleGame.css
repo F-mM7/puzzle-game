@@ -14,8 +14,6 @@
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 10px;
   flex-wrap: nowrap;
 }
 
@@ -188,6 +186,7 @@
   .puzzle-controls-bar {
     gap: 6px;
     padding: 5px 8px;
+    overflow: visible;
   }
 }
 
@@ -215,7 +214,7 @@
   .puzzle-controls-bar {
     gap: 4px;
     padding: 4px 6px;
-    overflow-x: auto;
+    overflow: visible;
   }
 
   .control-buttons {
